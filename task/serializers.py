@@ -16,3 +16,9 @@ class TaskSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Task
         fields = ['id','title', 'description', 'is_done', 'user']
+
+class UserSerializerTask(serializers.HyperlinkedModelSerializer):
+    tsks = serializers.ReadOnlyField()
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'tsks']

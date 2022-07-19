@@ -7,3 +7,6 @@ class Task(models.Model):
     description = models.TextField()
     is_done = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tasks")
+    
+    def __str__(self):
+        return self.title

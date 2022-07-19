@@ -3,11 +3,12 @@ from .models import Task
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserSerializer, TaskSerializer
+from .serializers import UserSerializer, TaskSerializer, UserSerializerTask
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
+from django.db.models import Count, Q, Avg
 
 
 # Create your views here.
@@ -123,3 +124,26 @@ def done_task(request, id):
     except Exception as err:
         print(err)
         return Response({"error":"internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@csrf_exempt
+@api_view(['GET'])
+def get_users(request):
+    try:
+        users = User.objects.annotate(tsks=Count('tasks'))
+        serializer = UserSerializerTask(users, many=True)
+        return Response(serializer.data)
+    except Exception as err:
+        print(err)
+        return Response({"error":"internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@csrf_exempt
+@api_view(['GET'])
+def get_done_tasks(request):
+    try:
+        users = User.objects.annotate(tsks=Count('tasks', filter=Q(tasks__is_done=True)))
+        serializer = UserSerializerTask(users, many=True)
+        return Response(serializer.data)
+    except Exception as err:
+        print(err)
+        return Response({"error":"internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
